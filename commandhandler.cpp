@@ -2,8 +2,14 @@
 
 #include <memory>
 #include <iostream>
+#include <fstream>
 
 using namespace std;
+
+QueueBase::QueueBase()
+{
+	m_startTime = chrono::system_clock::now();
+}
 
 bool QueueBase::isFinished()
 {
@@ -16,19 +22,34 @@ void QueueBase::exec()
 		return;
 	}
 	bool firstIt = true;
+	string result;
 	for (; !m_commands.empty(); m_commands.pop()) {
 		if (!firstIt) {
-			cout << ", ";
+			result += ", ";
 		}
 		firstIt = false;
-		cout << m_commands.front();
+		result += m_commands.front();
 	}
-	cout << endl;
+	cout << result << endl;
+	saveToFile(result);
 }
 
 void QueueBase::addCommand(const std::string &command)
 {
 	m_commands.push(command);
+}
+
+void QueueBase::saveToFile(const std::string &result)
+{
+	using namespace chrono;
+	std::ofstream outFile;
+	string fileName(to_string(duration_cast<seconds>
+							  (m_startTime.time_since_epoch()).count()) + ".log");
+	outFile.open(fileName);
+	if (outFile.is_open()) {
+		outFile << result;
+	}
+	outFile.close();
 }
 
 LimitedQueue::LimitedQueue(int maxCommandCount)

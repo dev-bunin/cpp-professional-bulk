@@ -3,6 +3,7 @@
 
 #include <string>
 #include <queue>
+#include <chrono>
 
 class QueueInterface {
 public:
@@ -15,12 +16,16 @@ public:
 
 class QueueBase : public QueueInterface {
 public:
+	QueueBase();
 	virtual bool isFinished();
 	virtual void exec();
 	virtual void addCommand(const std::string &command);
 
 protected:
 	std::queue<std::string> m_commands;
+	std::chrono::time_point<std::chrono::system_clock> m_startTime;
+
+	void saveToFile(const std::string &result);
 };
 
 class DynamicQueue : public QueueBase {
